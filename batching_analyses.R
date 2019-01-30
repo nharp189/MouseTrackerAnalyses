@@ -1,5 +1,5 @@
 ### set working directory to MouseTrap Demo folder ###
-setwd("/Users/nicholasharp/Desktop/MouseTrap_Demo")
+setwd("/Users/nicholasharp/Documents/Desktop_PlzClean/MouseTrap_Demo/")
 
 ### install MouseTrap... This only needs to be done once. ###
 ### ... and readbulk for applying to a set of files ###
@@ -17,108 +17,109 @@ library(readbulk)
 library(plyr)
 
 ### read in all the MT files from a directory ###
-files <- list.files(path = "/Users/nicholasharp/Desktop/MouseTrap_Demo/raw_data", 
+files <- list.files(path = "/Users/nicholasharp/Documents/Desktop_Plzclean/MouseTrap_Demo/raw_data", 
                     pattern = "*.mt", full.names = TRUE, recursive = FALSE)
-group.data <- read_bulk("/Users/nicholasharp/Desktop/MouseTrap_Demo/raw_data", fun = read_mt, 
+group.data <- read_bulk("/Users/nicholasharp/Documents/Desktop_Plzclean/MouseTrap_Demo/raw_data", fun = read_mt, 
           extension = ".mt")
+preprocessed.data<-mt_import_wide(group.data)
 foreach(file = files) %do% {
   ### create "rate" variable (0 = Positive, 1 = Negative) ###
-  group.data$rate <- ifelse(group.data$response == "POSITIVE", 0, 1)
+  preprocessed.data$rate <- ifelse(preprocessed.data$response == "POSITIVE", 0, 1)
   
   ### create "correct response" variable for clearly valenced faces (0 = Incorrect, 1 = Correct) ###
-  group.data$correct <- ifelse(group.data$condition == "Angry",  
-                               ifelse(group.data$rate == 1, 1, 0), 
-                               ifelse(group.data$condition == "Happy", 
-                                      ifelse(group.data$rate == 0, 1, 0), 
-                                      ifelse(group.data$condition == "NEG", 
-                                             ifelse(group.data$rate == 1, 1, 0),
-                                             ifelse(group.data$condition == "POS", 
-                                                    ifelse(group.data$rate == 0, 1, 0), NA))))
+  preprocessed.data$correct <- ifelse(preprocessed.data$condition == "Angry",  
+                                      ifelse(preprocessed.data$rate == 1, 1, 0), 
+                                      ifelse(preprocessed.data$condition == "Happy", 
+                                             ifelse(preprocessed.data$rate == 0, 1, 0), 
+                                             ifelse(preprocessed.data$condition == "NEG", 
+                                                    ifelse(preprocessed.data$rate == 1, 1, 0),
+                                                    ifelse(preprocessed.data$condition == "POS", 
+                                                           ifelse(preprocessed.data$rate == 0, 1, 0), NA))))
   
   ### Create column to average for each face ###
-  group.data$ang_rate <- ifelse(group.data$condition == "Angry", group.data$rate, NA)
-  group.data$hap_rate <- ifelse(group.data$condition == "Happy", group.data$rate, NA)
-  group.data$sur_rate <- ifelse(group.data$condition == "Surprise", group.data$rate, NA)
-  group.data$neg_rate <- ifelse(group.data$condition == "NEG", group.data$rate, NA)
-  group.data$pos_rate <- ifelse(group.data$condition == "POS", group.data$rate, NA)
-  group.data$amb_rate <- ifelse(group.data$condition == "AMBIG", group.data$rate, NA)
+  preprocessed.data$ang_rate <- ifelse(preprocessed.data$condition == "Angry", preprocessed.data$rate, NA)
+  preprocessed.data$hap_rate <- ifelse(preprocessed.data$condition == "Happy", preprocessed.data$rate, NA)
+  preprocessed.data$sur_rate <- ifelse(preprocessed.data$condition == "Surprise", preprocessed.data$rate, NA)
+  preprocessed.data$neg_rate <- ifelse(preprocessed.data$condition == "NEG", preprocessed.data$rate, NA)
+  preprocessed.data$pos_rate <- ifelse(preprocessed.data$condition == "POS", preprocessed.data$rate, NA)
+  preprocessed.data$amb_rate <- ifelse(preprocessed.data$condition == "AMBIG", preprocessed.data$rate, NA)
   
   ### Create column to average for each face in Block 1 ###
-  group.data$ang_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "Angry", group.data$rate, NA),NA)
-  group.data$hap_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "Happy", group.data$rate, NA),NA)
-  group.data$sur_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "Surprise", group.data$rate, NA),NA)
-  group.data$neg_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "NEG", group.data$rate, NA),NA)
-  group.data$pos_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "POS", group.data$rate, NA),NA)
-  group.data$amb_rate_b1 <- ifelse(group.data$order < 27,
-                                   ifelse(group.data$condition == "AMBIG", group.data$rate, NA),NA)
+  preprocessed.data$ang_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "Angry", preprocessed.data$rate, NA),NA)
+  preprocessed.data$hap_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "Happy", preprocessed.data$rate, NA),NA)
+  preprocessed.data$sur_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "Surprise", preprocessed.data$rate, NA),NA)
+  preprocessed.data$neg_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "NEG", preprocessed.data$rate, NA),NA)
+  preprocessed.data$pos_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "POS", preprocessed.data$rate, NA),NA)
+  preprocessed.data$amb_rate_b1 <- ifelse(preprocessed.data$order < 27,
+                                          ifelse(preprocessed.data$condition == "AMBIG", preprocessed.data$rate, NA),NA)
   
   ### Create column to average for each face in Block 2 ###
-  group.data$ang_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "Angry", group.data$rate, NA),NA)
-  group.data$hap_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "Happy", group.data$rate, NA),NA)
-  group.data$sur_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "Surprise", group.data$rate, NA),NA)
-  group.data$neg_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "NEG", group.data$rate, NA),NA)
-  group.data$pos_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "POS", group.data$rate, NA),NA)
-  group.data$amb_rate_b2 <- ifelse(group.data$order > 26 & group.data$order < 51,
-                                   ifelse(group.data$condition == "AMBIG", group.data$rate, NA),NA)
+  preprocessed.data$ang_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "Angry", preprocessed.data$rate, NA),NA)
+  preprocessed.data$hap_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "Happy", preprocessed.data$rate, NA),NA)
+  preprocessed.data$sur_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "Surprise", preprocessed.data$rate, NA),NA)
+  preprocessed.data$neg_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "NEG", preprocessed.data$rate, NA),NA)
+  preprocessed.data$pos_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "POS", preprocessed.data$rate, NA),NA)
+  preprocessed.data$amb_rate_b2 <- ifelse(preprocessed.data$order > 26 & preprocessed.data$order < 51,
+                                          ifelse(preprocessed.data$condition == "AMBIG", preprocessed.data$rate, NA),NA)
   
   ### Create column to average for each face in Block 3 ###
-  group.data$ang_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "Angry", group.data$rate, NA),NA)
-  group.data$hap_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "Happy", group.data$rate, NA),NA)
-  group.data$sur_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "Surprise", group.data$rate, NA),NA)
-  group.data$neg_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "NEG", group.data$rate, NA),NA)
-  group.data$pos_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "POS", group.data$rate, NA),NA)
-  group.data$amb_rate_b3 <- ifelse(group.data$order > 50 & group.data$order < 75,
-                                   ifelse(group.data$condition == "AMBIG", group.data$rate, NA),NA)
+  preprocessed.data$ang_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "Angry", preprocessed.data$rate, NA),NA)
+  preprocessed.data$hap_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "Happy", preprocessed.data$rate, NA),NA)
+  preprocessed.data$sur_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "Surprise", preprocessed.data$rate, NA),NA)
+  preprocessed.data$neg_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "NEG", preprocessed.data$rate, NA),NA)
+  preprocessed.data$pos_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "POS", preprocessed.data$rate, NA),NA)
+  preprocessed.data$amb_rate_b3 <- ifelse(preprocessed.data$order > 50 & preprocessed.data$order < 75,
+                                          ifelse(preprocessed.data$condition == "AMBIG", preprocessed.data$rate, NA),NA)
   
   ### Create column to average for each face in Block 4 ###
-  group.data$ang_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "Angry", group.data$rate, NA),NA)
-  group.data$hap_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "Happy", group.data$rate, NA),NA)
-  group.data$sur_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "Surprise", group.data$rate, NA),NA)
-  group.data$neg_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "NEG", group.data$rate, NA),NA)
-  group.data$pos_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "POS", group.data$rate, NA),NA)
-  group.data$amb_rate_b4 <- ifelse(group.data$order > 74,
-                                   ifelse(group.data$condition == "AMBIG", group.data$rate, NA),NA)
+  preprocessed.data$ang_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "Angry", preprocessed.data$rate, NA),NA)
+  preprocessed.data$hap_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "Happy", preprocessed.data$rate, NA),NA)
+  preprocessed.data$sur_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "Surprise", preprocessed.data$rate, NA),NA)
+  preprocessed.data$neg_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "NEG", preprocessed.data$rate, NA),NA)
+  preprocessed.data$pos_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "POS", preprocessed.data$rate, NA),NA)
+  preprocessed.data$amb_rate_b4 <- ifelse(preprocessed.data$order > 74,
+                                          ifelse(preprocessed.data$condition == "AMBIG", preprocessed.data$rate, NA),NA)
   
   ### Reaction times ###
-  group.data$ang_RT <- ifelse(group.data$condition == "Angry", 
-                              ifelse(group.data$correct == 1, group.data$RT, NA), NA)
-  group.data$hap_RT <- ifelse(group.data$condition == "Happy", 
-                              ifelse(group.data$correct == 1, group.data$RT, NA), NA)
-  group.data$sur_p_RT <- ifelse(group.data$condition == "Surprise", 
-                                ifelse(group.data$rate == 0, group.data$RT, NA), NA)
-  group.data$sur_n_RT <- ifelse(group.data$condition == "Surprise", 
-                                ifelse(group.data$rate == 1, group.data$RT, NA), NA)
-  group.data$neg_RT <- ifelse(group.data$condition == "NEG", 
-                              ifelse(group.data$correct == 1, group.data$RT, NA), NA)
-  group.data$pos_RT <- ifelse(group.data$condition == "POS", 
-                              ifelse(group.data$correct == 1, group.data$RT, NA), NA)
-  group.data$amb_p_RT <- ifelse(group.data$condition == "AMBIG", 
-                                ifelse(group.data$rate == 0, group.data$RT, NA), NA)
-  group.data$amb_n_RT <- ifelse(group.data$condition == "AMBIG", 
-                                ifelse(group.data$rate == 1, group.data$RT, NA), NA)
+  preprocessed.data$ang_RT <- ifelse(preprocessed.data$condition == "Angry", 
+                                     ifelse(preprocessed.data$correct == 1, preprocessed.data$RT, NA), NA)
+  preprocessed.data$hap_RT <- ifelse(preprocessed.data$condition == "Happy", 
+                                     ifelse(preprocessed.data$correct == 1, preprocessed.data$RT, NA), NA)
+  preprocessed.data$sur_p_RT <- ifelse(preprocessed.data$condition == "Surprise", 
+                                       ifelse(preprocessed.data$rate == 0, preprocessed.data$RT, NA), NA)
+  preprocessed.data$sur_n_RT <- ifelse(preprocessed.data$condition == "Surprise", 
+                                       ifelse(preprocessed.data$rate == 1, preprocessed.data$RT, NA), NA)
+  preprocessed.data$neg_RT <- ifelse(preprocessed.data$condition == "NEG", 
+                                     ifelse(preprocessed.data$correct == 1, preprocessed.data$RT, NA), NA)
+  preprocessed.data$pos_RT <- ifelse(preprocessed.data$condition == "POS", 
+                                     ifelse(preprocessed.data$correct == 1, preprocessed.data$RT, NA), NA)
+  preprocessed.data$amb_p_RT <- ifelse(preprocessed.data$condition == "AMBIG", 
+                                       ifelse(preprocessed.data$rate == 0, preprocessed.data$RT, NA), NA)
+  preprocessed.data$amb_n_RT <- ifelse(preprocessed.data$condition == "AMBIG", 
+                                       ifelse(preprocessed.data$rate == 1, preprocessed.data$RT, NA), NA)
 }
 
-individual.averages <- group.data
+individual.averages <- preprocessed.data$data
 
 ddply(individual.averages, "subjID", summarise, 
       ang_rate = mean(ang_rate, na.rm = TRUE),
@@ -160,4 +161,4 @@ ddply(individual.averages, "subjID", summarise,
       amb_p_RT = mean(amb_p_RT, na.rm = TRUE),
       amb_n_RT = mean(amb_n_RT, na.rm = TRUE))
 
-
+mt_heatmap(preprocessed.data)
